@@ -1,0 +1,158 @@
+        -:    0:Source:main.cpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:8
+        -:    1:// C++ program for Dijkstra's single source shortest path
+        -:    2:// algorithm. The program is for adjacency matrix
+        -:    3:// representation of the graph
+        -:    4:#include <iostream>
+        -:    5:#include <vector>
+        -:    6:#include <limits.h>
+        -:    7:#include <sstream>
+        -:    8:using namespace std;
+        -:    9:
+        -:   10:// Number of vertices in the graph
+        -:   11:#define V 3
+        -:   12:
+        -:   13:// A utility function to find the vertex with minimum
+        -:   14:// distance value, from the set of vertices not yet included
+        -:   15:// in shortest path tree
+        2:   16:int minDistance(int dist[], bool sptSet[])
+        -:   17:{
+        -:   18:
+        -:   19:    // Initialize min value
+        2:   20:    int min = INT_MAX, min_index;
+        -:   21:
+        8:   22:    for (int v = 0; v < V; v++)
+        6:   23:        if (sptSet[v] == false && dist[v] <= min)
+        3:   24:            min = dist[v], min_index = v;
+        -:   25:
+        2:   26:    return min_index;
+        -:   27:}
+        -:   28:
+        -:   29:// A utility function to print the constructed distance
+        -:   30:// array
+        1:   31:void printSolution(int dist[])
+        -:   32:{
+        1:   33:    cout << "Vertex \t Distance from Source" << endl;
+        4:   34:    for (int i = 0; i < V; i++)
+        3:   35:        cout << i << " \t\t\t\t" << dist[i] << endl;
+        1:   36:}
+        -:   37:
+        -:   38:// Function that implements Dijkstra's single source
+        -:   39:// shortest path algorithm for a graph represented using
+        -:   40:// adjacency matrix representation
+        1:   41:void dijkstra(int graph[V][V], int src)
+        -:   42:{
+        -:   43:    int dist[V]; // The output array.  dist[i] will hold the
+        -:   44:                 // shortest
+        -:   45:    // distance from src to i
+        -:   46:
+        -:   47:    bool sptSet[V]; // sptSet[i] will be true if vertex i is
+        -:   48:                    // included in shortest
+        -:   49:    // path tree or shortest distance from src to i is
+        -:   50:    // finalized
+        -:   51:
+        -:   52:    // Initialize all distances as INFINITE and stpSet[] as
+        -:   53:    // false
+        4:   54:    for (int i = 0; i < V; i++)
+        3:   55:        dist[i] = INT_MAX, sptSet[i] = false;
+        -:   56:
+        -:   57:    // Distance of source vertex from itself is always 0
+        1:   58:    dist[src] = 0;
+        -:   59:
+        -:   60:    // Find shortest path for all vertices
+        3:   61:    for (int count = 0; count < V - 1; count++) {
+        -:   62:        // Pick the minimum distance vertex from the set of
+        -:   63:        // vertices not yet processed. u is always equal to
+        -:   64:        // src in the first iteration.
+        2:   65:        int u = minDistance(dist, sptSet);
+        -:   66:
+        -:   67:        // Mark the picked vertex as processed
+        2:   68:        sptSet[u] = true;
+        -:   69:
+        -:   70:        // Update dist value of the adjacent vertices of the
+        -:   71:        // picked vertex.
+        8:   72:        for (int v = 0; v < V; v++)
+        -:   73:
+        -:   74:            // Update dist[v] only if is not in sptSet,
+        -:   75:            // there is an edge from u to v, and total
+        -:   76:            // weight of path from src to  v through u is
+        -:   77:            // smaller than current value of dist[v]
+        6:   78:            if (!sptSet[v] && graph[u][v]
+        3:   79:                && dist[u] != INT_MAX
+        3:   80:                && dist[u] + graph[u][v] < dist[v])
+        2:   81:                dist[v] = dist[u] + graph[u][v];
+        -:   82:    }
+        -:   83:
+        -:   84:    // print the constructed distance array
+        1:   85:    printSolution(dist);
+        1:   86:}
+        -:   87:
+        -:   88:// Function to read the graph from standard input, line by line
+        8:   89:bool readGraph(int graph[V][V]) 
+        -:   90:{
+        8:   91:    cout << "Enter the adjacency matrix for the graph (" << V << "x" << V << ") one line at a time:" << endl;
+       11:   92:    for (int i = 0; i < V; ++i) 
+        -:   93:    {
+        -:   94:        // Read a line of input
+       10:   95:        string line;
+       10:   96:        getline(cin, line);
+        -:   97:        
+        -:   98:
+        -:   99:        // Check for extra spaces
+       55:  100:        for (size_t j = 0; j < line.length(); ++j) {
+       46:  101:            if (line[j] == ' ' && (j == 0 || j == line.length() - 1 || line[j + 1] == ' ')) {
+        1:  102:                cerr << "ERROR: Invalid input in line " << i + 1 << ". Extra spaces detected." << endl;
+        1:  103:                return false;
+        -:  104:            }
+        -:  105:        }
+        -:  106:
+        -:  107:        // Parse the line
+        9:  108:        istringstream iss(line);
+       25:  109:        for (int j = 0; j < V; ++j) 
+        -:  110:        {
+        -:  111:            int weight;
+       21:  112:            if (!(iss >> weight)) 
+        -:  113:            {
+        3:  114:                cerr << "ERROR: Invalid input in line " << i + 1 << ". Please provide exactly " << V << " integers per line." << endl;
+        5:  115:                return false;
+        -:  116:            }
+       18:  117:            if (weight < 0) 
+        -:  118:            {
+        1:  119:                cerr << "ERROR: Negative edge weight detected. Dijkstra's algorithm does not support negative weights." << endl;
+        1:  120:                return false;
+        -:  121:            }
+       17:  122:            if (weight != 0 && i == j) 
+        -:  123:            {
+        1:  124:                cerr << "ERROR: every edge from vertex to himself must be 0" << endl;
+        1:  125:                return false;
+        -:  126:            }
+       16:  127:            graph[i][j] = weight;
+        -:  128:        }
+        -:  129:
+        -:  130:        // Check for extra values
+        4:  131:        string leftover;
+        4:  132:        if (iss >> leftover) 
+        -:  133:        {
+        1:  134:            cerr << "ERROR: Too many values in line " << i + 1 << ". Please provide exactly " << V << " integers per line." << endl;
+        1:  135:            return false;
+        -:  136:        }
+       17:  137:    }
+        1:  138:    return true;
+        -:  139:}
+        -:  140:
+        8:  141:int main() {
+        -:  142:    int graph[V][V];
+        -:  143:
+        8:  144:    if (readGraph(graph)) 
+        -:  145:    {
+        1:  146:        dijkstra(graph, 0);
+        -:  147:    }
+        -:  148:    else 
+        -:  149:    {
+        7:  150:        cerr << "Failed to read graph. Please try again." << endl;
+        -:  151:    }
+        -:  152:
+        8:  153:    return 0;
+        -:  154:}
